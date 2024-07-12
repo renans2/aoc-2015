@@ -2,6 +2,7 @@ package util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class CustomFileReader implements ICustomFileReader {
@@ -24,12 +25,26 @@ public class CustomFileReader implements ICustomFileReader {
         while (currentLine < index && sc.hasNextLine())
             skipLine();
 
-        return sc.hasNextLine() ? sc.nextLine() : "***There is no such line";
+        if(sc.hasNextLine())
+            return sc.nextLine();
+        else
+            throw new NoSuchElementException("There is no next line");
     }
 
     @Override
     public int getNumberOfLines(){
         return numberOfLines;
+    }
+
+    @Override
+    public String[] lines() throws FileNotFoundException {
+        String[] lines = new String[numberOfLines];
+
+        for (int i = 0; i < lines.length; i++)
+            lines[i] = sc.nextLine();
+
+        reset();
+        return lines;
     }
 
     private void reset() throws FileNotFoundException {
