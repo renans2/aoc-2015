@@ -2,33 +2,30 @@ package util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.NoSuchElementException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class CustomFileReader implements ICustomFileReader {
-    private int currentLine = 0;
     private final File file;
     private Scanner sc;
-    private int numberOfLines = 0;
+    private int numberOfLines;
+    private final String[] lines;
 
     public CustomFileReader(String filePath) throws FileNotFoundException {
         file = new File(filePath);
         sc = new Scanner(file);
-        numberOfLines = countLines();
+        setNumberOfLines();
+        lines = new String[numberOfLines];
+        setLines();
     }
 
     @Override
-    public String getLine(int index) throws FileNotFoundException {
-        if(index < currentLine)
-            reset();
-
-        while (currentLine < index && sc.hasNextLine())
-            skipLine();
-
-        if(sc.hasNextLine())
-            return sc.nextLine();
-        else
-            throw new NoSuchElementException("There is no next line");
+    public String getLine(int index) {
+        if(index >= numberOfLines) {
+            throw new IndexOutOfBoundsException("Index is greater than the number of lines");
+        } else {
+            return lines[index];
+        }
     }
 
     @Override
@@ -37,35 +34,25 @@ public class CustomFileReader implements ICustomFileReader {
     }
 
     @Override
-    public String[] lines() throws FileNotFoundException {
-        String[] lines = new String[numberOfLines];
+    public String[] lines() {
+        return Arrays.copyOf(lines, numberOfLines);
+    }
 
+    private void setLines() {
         for (int i = 0; i < lines.length; i++)
             lines[i] = sc.nextLine();
+    }
+
+    private void setNumberOfLines() throws FileNotFoundException {
+        while(sc.hasNextLine()) {
+            sc.nextLine();
+            numberOfLines++;
+        }
 
         reset();
-        return lines;
     }
 
     private void reset() throws FileNotFoundException {
         sc = new Scanner(file);
-        currentLine = 0;
-    }
-
-    private void skipLine() {
-        sc.nextLine();
-        currentLine++;
-    }
-
-    private int countLines() throws FileNotFoundException {
-        int lines = 0;
-
-        while(sc.hasNextLine()) {
-            skipLine();
-            lines++;
-        }
-
-        reset();
-        return lines;
     }
 }
