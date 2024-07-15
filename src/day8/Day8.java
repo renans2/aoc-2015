@@ -32,14 +32,29 @@ public class Day8 {
             return counter;
         };
 
-        Integer codeChars = Arrays.stream(lines)
-                                  .map(String::length)
-                                  .reduce(0, Integer::sum);
+        Function<String, Integer> getNumEncodedStringChars = (str) -> {
+            int counter = str.length();
+            int i = 0;
 
-        Integer stringChars = Arrays.stream(lines)
-                                    .map(getNumStringChars)
-                                    .reduce(0, Integer::sum);
+            while(i < str.length()) {
+                if(str.charAt(i) == '\\' || str.charAt(i) == '\"')
+                    counter++;
+                i++;
+            }
 
-        System.out.println(codeChars - stringChars);
+            return counter + 2;
+        };
+
+        // Part 1
+        Integer result = Arrays.stream(lines)
+                               .map(str -> str.length() - getNumStringChars.apply(str))
+                               .reduce(0, Integer::sum);
+        System.out.println(result);
+
+        // Part 2
+        Integer result2 = Arrays.stream(lines)
+                                .map(str -> getNumEncodedStringChars.apply(str) - str.length())
+                                .reduce(0, Integer::sum);
+        System.out.println(result2);
     }
 }
